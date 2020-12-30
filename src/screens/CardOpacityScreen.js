@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, Button } from "react-native";
-import {useValues, useClock} from 'react-native-redash/lib/module/v1'
+import {useValues, useClock, proc} from 'react-native-redash/lib/module/v1'
+import Card from '../components/Card'
 import Animated,{Value,cond, eq,Clock,add ,startClock, interpolate, useCode, Extrapolate, set, not} from 'react-native-reanimated'
 
 
@@ -35,10 +36,7 @@ const CardOpacity = () => {
     <View style={styles.container}>
       <View style={styles.topContainer}>
       <Animated.View  style= {[styles.cardContainer,{opacity}]} >
-      <Image
-          style={[styles.card]}
-          source={require("../../assets/examples/card4.jpg")}
-        />
+          <Card imgSource={require("../../assets/examples/card4.jpg")}/>        
       </Animated.View>
         
       </View>
@@ -67,11 +65,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",    
-  },
-  card: {
-    width: "100%",
-    borderRadius: 30,
-    height: "100%",
   },
   cardContainer:{
     width: "90%",
