@@ -1,15 +1,19 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, Button } from "react-native";
+import {useValues, useClock} from 'react-native-redash/lib/module/v1'
 import Animated,{Value,cond, eq,Clock,add ,startClock, interpolate, useCode, Extrapolate, set, not} from 'react-native-reanimated'
 
+
+
+
+const duration= 1000
+ 
 const CardOpacity = () => {
-  const clock = new Clock()
-  const startAnimation= new Value(0)
-  const startTime= new Value(0)
-  const duration= 1000
+  const [show, setShow] = useState(true)
+  const clock = useClock([]) // preserves values between renders
+  const startAnimation= new Value(1)
+  const [startTime,from,to]= useValues(0,0,0)  // preserves values between renders  
   const endTime=add(startTime,duration)
-  const from = new Value(1)
-  const to= new Value(0)
   const opacity = interpolate(clock,{
     inputRange: [startTime,endTime],
     outputRange:[from, to],
@@ -19,13 +23,12 @@ const CardOpacity = () => {
   useCode(()=>[
     cond(eq(startAnimation,1),[
       startClock(clock),
-      set(startTime, clock),
-      set(from,not(from)),
+      set(from,opacity),
       set(to,not(to)),
+      set(startTime, clock),
       set(startAnimation,0)
-
     ])
-  ],[clock,from,startAnimation,startTime,from,to])
+  ],[clock,from,opacity,startAnimation,startTime,from,to])
 
 
   return (
@@ -41,8 +44,8 @@ const CardOpacity = () => {
       </View>
 
       <View style={styles.bottomContainer}>
-        <Button title='toggleOpacity' 
-          onPress={()=>startAnimation.setValue(1)}
+        <Button title={show?"hide":"show"} 
+          onPress={()=>setShow(!show)}
         />
       </View>
     </View>
