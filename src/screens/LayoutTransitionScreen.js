@@ -1,30 +1,42 @@
-import React,{useState} from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image,Dimensions } from "react-native";
-import { createNativeWrapper } from "react-native-gesture-handler";
+import React,{useState,useRef} from "react";
+import { View, Text, StyleSheet,Dimensions,ScrollView } from "react-native";
 import {Card }from "../components/Card";
 import Selector from "../components/Selector";
-
+import {Transition,Transitioning} from 'react-native-reanimated'
 
 const WIDTH = Dimensions.get('window').width
+const HEIGHT = Dimensions.get('window').height
 
-const LayoutTransitionScreen = ({}) => {
+console.log(WIDTH, HEIGHT)
+const imgSources = [
+  {
+    id: 1,
+    source: require("../../assets/examples/card1.png"),
+  },
+  {
+    id: 2,
+    source: require("../../assets/examples/card2.png"),
+  },
+  {
+    id: 3,
+    source: require("../../assets/examples/card3.png"),
+  },
+  {
+    id: 4,
+    source: require("../../assets/examples/card3.png"),
+  },
+  {
+    id: 5,
+    source: require("../../assets/examples/card3.png"),
+  },
 
-    const [currentLayout, setCurrentLayout] = useState('column')
-  const imgSources = [
-    {
-      id: 1,
-      source: require("../../assets/examples/card1.png"),
-    },
-    {
-      id: 2,
-      source: require("../../assets/examples/card2.png"),
-    },
-    {
-      id: 3,
-      source: require("../../assets/examples/card3.png"),
-    },
-  
-  ];
+];
+
+const transition = <Transition.Change durationMs={400} interpolation= 'easeIn' />
+
+const LayoutTransitionScreen = () => {
+
+ 
 
   const selectorsArr = [
     {
@@ -54,7 +66,7 @@ const LayoutTransitionScreen = ({}) => {
     },
     column: {
      parent:{ flexDirection: "column"},
-     child:{flex:1},
+     child:{flex:0},
      cardWidth: WIDTH -70
     },
     wrap: {
@@ -72,24 +84,41 @@ const LayoutTransitionScreen = ({}) => {
 
   }
 
+  const ref=useRef(null)
+  const [currentLayout, setCurrentLayout] = useState(layoutsConfig.column)
+
   return (
     <View style={styles.container}>
-      <View  style={[styles.cardListContainer,{...layoutsConfig[currentLayout].parent}]}>
+    <ScrollView
+    style={styles.scrollViewContainer}
+    >
+      <Transitioning.View  style={[styles.cardListContainer,{...currentLayout.parent}]}
+      {...{ref, transition}}
+      >
         {imgSources.map((item) => {
           return (
-            <View key={item.id} style={[styles.cardContainer,{...layoutsConfig[currentLayout].child}]}>
-              <Card imgSource={item.source} cardWidth={layoutsConfig[currentLayout].cardWidth} />
+            <View 
+            key={item.id} 
+            style={[styles.cardContainer,{...currentLayout.child}]}
+            >
+              <Card imgSource={item.source} cardWidth={currentLayout.cardWidth} />
             </View>
           );
         })}
-      </View>
+      </Transitioning.View>
+      </ScrollView>
       <View style={styles.selectorsListContainer} >
             {selectorsArr.map(item=>{
                 return <Selector
                 key={item.id}
                 selected={currentLayout===item.name?true:false } 
                 title={item.name}
-                onSelect={()=>setCurrentLayout(item.name)}
+                onSelect={()=>{
+                  if(ref.current){
+                    ref.current.animateNextTransition()
+                  }
+                  setCurrentLayout(layoutsConfig[item.name])
+                }}
                 />
             })}
       </View>
@@ -103,6 +132,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  scrollViewContainer:{
+    flex:5,
+  },
   cardContainer: {
     flex: 1,
     justifyContent: "center",
@@ -110,10 +142,12 @@ const styles = StyleSheet.create({
     margin:5
   },
   cardListContainer:{
-      flex: 5
+    minHeight: HEIGHT -100
   },
   selectorsListContainer:{
-      flex: 1,
+      width:"100%",
+      position: 'absolute',
+      bottom: 0,
       flexDirection:"row",
       justifyContent: 'space-around',
       alignItems:"center"
