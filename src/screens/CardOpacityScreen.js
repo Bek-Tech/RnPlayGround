@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { StyleSheet, View, Text, Image, Button } from "react-native";
 import {useValues, useClock, proc} from 'react-native-redash/lib/module/v1'
-import Card from '../components/Card'
+import {Card} from '../components/Card'
 import Animated,{Value,cond, eq,Clock,add ,startClock, interpolate, useCode, Extrapolate, set, not} from 'react-native-reanimated'
 
 
